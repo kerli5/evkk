@@ -91,21 +91,21 @@
 
   <insert id="insertMaterial" parameterType="ee.tlu.evkk.dal.dto.Material" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO core.material (
-      title,
-      description,
-      downloads,
-      likes,
-      created_at,
-      material_type_id,
-      language_level_id
+    title,
+    description,
+    downloads,
+    likes,
+    created_at,
+    material_type_id,
+    language_level_id
     ) VALUES (
-      #{title},
-      #{description},
-      #{downloads},
-      #{likes},
-      #{createdAt},
-      #{materialTypeId},
-      #{languageLevelId}
+    #{title},
+    #{description},
+    #{downloads},
+    #{likes},
+    #{createdAt},
+    #{materialTypeId},
+    #{languageLevelId}
     )
   </insert>
 
@@ -162,23 +162,21 @@
     <include refid="materialAssociations"/>
     WHERE m.id = #{id}
   </select>
-  
-  <select id="searchMaterials" resultMap="MaterialResultMap">
+  <select id="searchStudyMaterials" resultMap="MaterialResultMap">
     SELECT
     <include refid="materialAssociationColumns"/>
     FROM core.material m
     <include refid="materialAssociations"/>
-    WHERE
-    LOWER(m.title) LIKE LOWER(CONCAT('%', #{query}, '%'))
+    WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', #{query}, '%'))
     OR LOWER(m.description) LIKE LOWER(CONCAT('%', #{query}, '%'))
+    OR LOWER(m.created_at::TEXT) LIKE LOWER(CONCAT('%', #{query}, '%'))
     OR EXISTS (
-    SELECT 1
-    FROM core.material_category mc
+    SELECT 1 FROM core.material_category mc
     JOIN core.category c ON mc.category_id = c.id
     WHERE mc.material_id = m.id
     AND LOWER(c.name) LIKE LOWER(CONCAT('%', #{query}, '%'))
     )
-    ORDER BY m.id ASC
+    ORDER BY m.id DESC
   </select>
 
 </mapper>

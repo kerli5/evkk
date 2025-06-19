@@ -1,47 +1,51 @@
-//sorteerimise nupp
-
 import React from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 import '../../../pages/styles/Library.css';
-import { useTranslation } from 'react-i18next';
 
-export default function SortButton() {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
-    const { t } = useTranslation();
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+export default function SortButton({ onChange, selected }) {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
-    return (
-        <div>
-            <Button
-                id="sort-button"
-                aria-controls={open ? 'sort-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                onClick={handleClick}
-                variant="contained"
-                className="library-container-sortbutton"
-            >
-              {t('sort_button')}
-            </Button>
-            <Menu
-                id="sort-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'sort-button',
-                }}
-            >
-                <MenuItem onClick={handleClose}>{t('sort_popular_first')}</MenuItem>
-                <MenuItem onClick={handleClose}>{t('sort_older_first')}</MenuItem>
-                <MenuItem onClick={handleClose}>{t('sort_newer_first')}</MenuItem>
-            </Menu>
-        </div>
-    )
+  const sortOptions = [
+    { key: 'az', label: 'A→Z' },
+    { key: 'za', label: 'Z→A' },
+    { key: 'newest', label: 'Uuemad' },
+    { key: 'oldest', label: 'Vanemad' }
+  ];
+
+  const selectedLabel = sortOptions.find(opt => opt.key === selected)?.label || 'Sorteeri';
+
+  return (
+    <>
+      <Button
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        variant="contained"
+        className="library-container-sortbutton"
+      >
+        SORTEERI: {selectedLabel}
+      </Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => setAnchorEl(null)}
+      >
+        {sortOptions.map(opt => (
+          <MenuItem
+            key={opt.key}
+            onClick={() => {
+              onChange(opt.key);
+              setAnchorEl(null);
+            }}
+            selected={selected === opt.key}
+            sx={{
+              fontWeight: selected === opt.key ? 'bold' : 'normal',
+              backgroundColor: selected === opt.key ? '#f0f0f0' : 'inherit'
+            }}
+          >
+            {opt.label}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
 }

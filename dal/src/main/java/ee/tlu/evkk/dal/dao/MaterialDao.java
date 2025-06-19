@@ -15,8 +15,6 @@ public interface MaterialDao {
   void insertMaterialTargetGroups(Material material);
 
   List<Material> findAllMaterials();
-  List<Material> searchMaterials(@Param("query") String query);
-
   Material findMaterialById(@Param("id") Long id);
 
   List<Material> getFilteredStudyMaterials(
@@ -24,4 +22,7 @@ public interface MaterialDao {
     @Param("languageLevel") List<String> languageLevel,
     @Param("materialType") List<String> materialType
   );
+
+  // 🔍 NEW:
+  List<Material> searchStudyMaterials(@Param("query") String query);
 }

@@ -13,6 +13,8 @@ public interface ExerciseDao {
 
   List<Exercise> findAllExercises();
 
+  List<Exercise> searchByTitle(@Param("query") String query);
+
   Exercise findById(@Param("id") Long id);
 
   List<Exercise> getFilteredExercises(
@@ -27,6 +29,4 @@ public interface ExerciseDao {
   void insertExerciseCategories(Exercise exercise);
 
   void insertExerciseTargetGroups(Exercise exercise);
-
-  List<Exercise> searchExercises(@Param("query") String query);
 }

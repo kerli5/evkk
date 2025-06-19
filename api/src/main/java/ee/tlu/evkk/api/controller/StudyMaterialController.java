@@ -41,13 +41,9 @@ public class StudyMaterialController {
       );
       return ResponseEntity.ok(saved);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity
-        .status(HttpStatus.BAD_REQUEST)
-        .body(e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     } catch (IOException e) {
-      return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Faili salvestamine ebaõnnestus.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Faili salvestamine ebaõnnestus.");
     }
   }
 
@@ -61,20 +57,19 @@ public class StudyMaterialController {
     return studyMaterialService.getMaterialById(id);
   }
 
-  // find all language levels
   @GetMapping("/language-levels")
   public List<LanguageLevel> getLanguageLevels() {
     return studyMaterialService.getAllLanguageLevels();
   }
 
-  // find all categories
   @GetMapping("/categories")
   public List<Category> getCategories() {
     return studyMaterialService.getAllCategories();
   }
-  
+
   @GetMapping("/search")
-  public List<Material> searchStudyMaterials(@RequestParam String query) {
+  public List<Material> searchStudyMaterials(@RequestParam("query") String query) {
     return studyMaterialService.searchMaterials(query);
   }
+
 }

@@ -30,12 +30,10 @@ public class StudyMaterialService {
     List<String> categories, String level, String type,
     String link, String text, List<String> targetGroups
   ) throws IOException {
-
     int materialTypeId = getMaterialTypeId(type);
     Long levelId = findOrInsertLevel(level);
     Long statusId = 1L; // DRAFT
 
-    // Faili kontroll enne salvestamist
     String extension = null;
     if ("fail".equalsIgnoreCase(type)) {
       if (file == null || file.getOriginalFilename() == null || file.getSize() == 0) {
@@ -62,7 +60,6 @@ public class StudyMaterialService {
 
     materialDao.insertMaterial(material);
 
-    // Mitme kategooria salvestamine
     List<Category> categoryList = categories.stream()
       .map(this::findOrInsertCategory)
       .map(id -> Category.builder().id(id).build())
@@ -71,7 +68,6 @@ public class StudyMaterialService {
     material.setCategories(categoryList);
     materialDao.insertMaterialCategories(material);
 
-    // Mitme sihigrupi lisamine
     List<TargetGroup> targetGroupList = targetGroups.stream()
       .map(this::findTargetGroup)
       .map(id -> TargetGroup.builder().id(id).build())
@@ -80,7 +76,6 @@ public class StudyMaterialService {
     material.setTargetGroups(targetGroupList);
     materialDao.insertMaterialTargetGroups(material);
 
-    // Alaminfo salvestamine tüübi alusel
     switch (type.toLowerCase()) {
       case "fail":
         String filePath = storeFile(file);
@@ -93,13 +88,8 @@ public class StudyMaterialService {
         break;
 
       case "link":
-        if (link == null || link.isBlank()) {
-          throw new IllegalArgumentException("Link on kohustuslik!");
-        }
-
-        if (!link.matches("^(https?://).+")) {
-          throw new IllegalArgumentException("Palun sisestage korrektne link!");
-        }
+        if (link == null || link.isBlank()) throw new IllegalArgumentException("Link on kohustuslik!");
+        if (!link.matches("^(https?://).+")) throw new IllegalArgumentException("Palun sisestage korrektne link!");
 
         linkMaterialDao.insertLinkMaterial(LinkMaterial.builder()
           .materialId(material.getId())
@@ -116,14 +106,10 @@ public class StudyMaterialService {
         break;
 
       case "video":
-        if (link == null || link.isBlank()) {
-          throw new IllegalArgumentException("Video link on kohustuslik!");
-        }
+        if (link == null || link.isBlank()) throw new IllegalArgumentException("Video link on kohustuslik!");
 
         String platform = detectPlatform(link);
-        if ("UNKNOWN".equals(platform)) {
-          throw new IllegalArgumentException("Sisestatud link ei ole toetatud videoplatvormilt!");
-        }
+        if ("UNKNOWN".equals(platform)) throw new IllegalArgumentException("Sisestatud link ei ole toetatud videoplatvormilt!");
 
         String embedCode = generateEmbedCode(link, platform);
         videoMaterialDao.insertVideoMaterial(VideoMaterial.builder()
@@ -139,14 +125,8 @@ public class StudyMaterialService {
   }
 
   private static final List<String> ALLOWED_FILE_EXTENSIONS = List.of(
-    "pdf",
-    "xls", "xlsx",
-    "odt",
-    "ppt", "pptx",
-    "txt",
-    "doc", "docx",
-    "rtf",
-    "png", "jpg", "jpeg"
+    "pdf", "xls", "xlsx", "odt", "ppt", "pptx", "txt",
+    "doc", "docx", "rtf", "png", "jpg", "jpeg"
   );
 
   private int getMaterialTypeId(String type) {
@@ -196,14 +176,9 @@ public class StudyMaterialService {
 
   private String extractYoutubeId(String url) {
     try {
-      if (url.contains("v=")) {
-        return url.substring(url.indexOf("v=") + 2).split("&")[0];
-      } else if (url.contains("youtu.be/")) {
-        return url.substring(url.indexOf("youtu.be/") + 9).split("\\?")[0];
-      }
-    } catch (Exception e) {
-      // ignore
-    }
+      if (url.contains("v=")) return url.substring(url.indexOf("v=") + 2).split("&")[0];
+      else if (url.contains("youtu.be/")) return url.substring(url.indexOf("youtu.be/") + 9).split("\\?")[0];
+    } catch (Exception ignored) {}
     return "";
   }
 
@@ -260,17 +235,15 @@ public class StudyMaterialService {
     return materialDao.findMaterialById(id);
   }
 
-  // find all language levels
   public List<LanguageLevel> getAllLanguageLevels() {
     return languageLevelDao.findAllLanguageLevels();
   }
 
-  // find all categories
   public List<Category> getAllCategories() {
     return categoryDao.findAllCategories();
   }
-  
+
   public List<Material> searchMaterials(String query) {
-    return materialDao.searchMaterials(query);
+    return materialDao.searchStudyMaterials(query);
   }
 }
